@@ -17,6 +17,14 @@ const initAudioContext = () => {
     if (globalAudioCtx.state === 'suspended') {
       globalAudioCtx.resume();
     }
+    // Jouer un son silencieux pour forcer le déverrouillage sur iOS Safari
+    try {
+      const buffer = globalAudioCtx.createBuffer(1, 1, 22050);
+      const source = globalAudioCtx.createBufferSource();
+      source.buffer = buffer;
+      source.connect(globalAudioCtx.destination);
+      source.start(0);
+    } catch(e) {}
   }
 };
 
