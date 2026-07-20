@@ -207,7 +207,7 @@ export default function Home() {
         hasWelcomed = true;
         setIsProcessing(true);
         setProcessingStep("Accueil vocal...");
-        await playAudioResponse("Bonjour Pascal, comment puis-je t'aider tout court ?");
+        await playAudioResponse("Bonjour Pascal, comment puis-je t'aider ?");
         setIsProcessing(false);
         setProcessingStep("");
       }
