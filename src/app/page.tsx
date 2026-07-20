@@ -446,12 +446,14 @@ export default function Home() {
   const [editTitle, setEditTitle] = useState("");
   const [editUrgent, setEditUrgent] = useState(false);
   const [editImportant, setEditImportant] = useState(false);
+  const [editComment, setEditComment] = useState("");
 
   const startEditing = (task: Task) => {
     setEditingTaskId(task.id || null);
     setEditTitle(task.title);
     setEditUrgent(task.isUrgent || false);
     setEditImportant(task.isImportant || false);
+    setEditComment(task.comment || "");
   };
 
   const saveEditing = async (taskId: string) => {
@@ -460,9 +462,10 @@ export default function Home() {
       await updateTaskDetails(taskId, {
         title: editTitle,
         isUrgent: editUrgent,
-        isImportant: editImportant
+        isImportant: editImportant,
+        comment: editComment
       });
-      setTasks(tasks.map(t => t.id === taskId ? { ...t, title: editTitle, isUrgent: editUrgent, isImportant: editImportant } : t));
+      setTasks(tasks.map(t => t.id === taskId ? { ...t, title: editTitle, isUrgent: editUrgent, isImportant: editImportant, comment: editComment } : t));
       setEditingTaskId(null);
     } catch (error) {
       console.error(error);
@@ -480,6 +483,13 @@ export default function Home() {
             value={editTitle} 
             onChange={(e) => setEditTitle(e.target.value)} 
             className="input-field" 
+          />
+          <textarea 
+            value={editComment} 
+            onChange={(e) => setEditComment(e.target.value)} 
+            className="input-field" 
+            placeholder="Commentaire (laisser vide pour supprimer)..."
+            style={{ minHeight: '80px', resize: 'vertical', fontFamily: 'inherit' }}
           />
           <div style={{ display: "flex", gap: "1rem", fontSize: "0.9rem", color: "var(--text-muted)", justifyContent: "space-between" }}>
             <div style={{ display: "flex", gap: "1rem" }}>
