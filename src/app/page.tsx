@@ -7,6 +7,19 @@ import { onAuthStateChanged, User } from "firebase/auth";
 import { getTodayEvents } from "@/lib/calendar";
 import { getUserTasks, addTask, updateTaskStatus, deleteTask, Task } from "@/lib/tasks";
 
+let globalAudioCtx: any = null;
+
+const initAudioContext = () => {
+  if (typeof window !== 'undefined') {
+    if (!globalAudioCtx) {
+      globalAudioCtx = new (window.AudioContext || (window as any).webkitAudioContext)();
+    }
+    if (globalAudioCtx.state === 'suspended') {
+      globalAudioCtx.resume();
+    }
+  }
+};
+
 export default function Home() {
   const [user, setUser] = useState<User | null>(null);
   const [events, setEvents] = useState<any[]>([]);
@@ -160,6 +173,7 @@ export default function Home() {
   };
 
   const toggleRecording = () => {
+    initAudioContext(); // Déverrouillage indispensable pour iOS Safari
     if (isRecording) {
       stopRecording();
     } else {
@@ -177,7 +191,9 @@ export default function Home() {
       });
       const arrayBuffer = await res.arrayBuffer();
       
-      const audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)();
+      if (!globalAudioCtx) initAudioContext();
+      const audioCtx = globalAudioCtx;
+      
       const decodedData = await audioCtx.decodeAudioData(arrayBuffer);
       
       const source = audioCtx.createBufferSource();
