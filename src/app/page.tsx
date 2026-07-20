@@ -189,7 +189,7 @@ export default function Home() {
     }
   };
 
-  // Lecture de la réponse vocale avec un effet de réverbération "J.A.R.V.I.S"
+  // Lecture de la réponse vocale standardisée (sans réverb synthétique pour éviter le bug de voix extraterrestre sur iPhone)
   const playAudioResponse = async (text: string) => {
     try {
       const res = await fetch("/api/tts", { 
@@ -197,42 +197,15 @@ export default function Home() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({text}) 
       });
-      const arrayBuffer = await res.arrayBuffer();
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const audio = new Audio(url);
       
-      if (!globalAudioCtx) initAudioContext();
-      const audioCtx = globalAudioCtx;
+      audio.play().catch(e => console.error("Erreur de lecture audio :", e));
       
-      const decodedData = await audioCtx.decodeAudioData(arrayBuffer);
-      
-      const source = audioCtx.createBufferSource();
-      source.buffer = decodedData;
-      
-      // Génération d'une réverbération synthétique
-      const convolver = audioCtx.createConvolver();
-      const rate = audioCtx.sampleRate;
-      const length = rate * 1.5; // 1.5 secondes de réverb
-      const impulse = audioCtx.createBuffer(2, length, rate);
-      for (let i = 0; i < 2; i++) {
-        const channel = impulse.getChannelData(i);
-        for (let j = 0; j < length; j++) {
-          channel[j] = (Math.random() * 2 - 1) * Math.pow(1 - j / length, 3.0);
-        }
-      }
-      convolver.buffer = impulse;
-
-      const dryGain = audioCtx.createGain();
-      const wetGain = audioCtx.createGain();
-      dryGain.gain.value = 0.8;  // Son direct
-      wetGain.gain.value = 0.25; // Effet de résonance
-      
-      source.connect(dryGain);
-      source.connect(convolver);
-      convolver.connect(wetGain);
-      
-      dryGain.connect(audioCtx.destination);
-      wetGain.connect(audioCtx.destination);
-      
-      source.start(0);
+      audio.onended = () => {
+        URL.revokeObjectURL(url);
+      };
     } catch (e) {
       console.error("Erreur de lecture TTS :", e);
     }
