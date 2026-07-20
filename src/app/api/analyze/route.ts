@@ -41,9 +41,9 @@ Tu dois répondre UNIQUEMENT en JSON avec la structure suivante :
   "isImportant": true/false (selon l'impact),
   "dueDate": "Texte court de l'échéance (ex: 'Ce soir') ou null",
   "category": "perso" ou "pro" (déduis-le du contexte, si incertain mets "perso"),
-  "isEvent": true/false (true SEULEMENT s'il s'agit d'un rendez-vous ou d'une tâche planifiée à un jour ET une heure précise, ex: "Médecin à 19h"),
-  "eventStartTime": "Date au format ISO 8601 (ex: '2026-07-20T19:00:00Z') ou null si isEvent est false",
-  "eventEndTime": "Date au format ISO 8601 (généralement 1h après startTime) ou null",
+  "isEvent": true/false (true ABSOLUMENT DÈS QU'IL Y A UNE NOTION DE TEMPS : un jour, une date, un mois, une année, ou une heure. ex: "demain", "le 15", "lundi", "à 19h"),
+  "eventStartTime": "Date au format ISO 8601 (ex: '2026-07-20T19:00:00Z'). Si l'utilisateur donne un jour sans heure précise (ex: 'demain', 'lundi'), fixe l'heure à 09:00:00Z par défaut sur ce jour-là.",
+  "eventEndTime": "Date au format ISO 8601 (généralement 1h après startTime)",
 
   // SI intent == "query_tasks", remplis ce champ :
   "responseMessage": "Ta réponse vocale naturelle à la question de l'utilisateur, en tutoyant, claire et concise. (ou null)"
