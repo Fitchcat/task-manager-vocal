@@ -67,6 +67,35 @@ const playBeep = () => {
   }
 };
 
+const playSuccessSound = () => {
+  if (!globalAudioCtx) return;
+  try {
+    const playNote = (freq: number, startTime: number) => {
+      const osc = globalAudioCtx.createOscillator();
+      const gainNode = globalAudioCtx.createGain();
+      osc.type = 'sine';
+      osc.frequency.value = freq;
+      
+      gainNode.gain.setValueAtTime(0, startTime);
+      gainNode.gain.linearRampToValueAtTime(0.1, startTime + 0.05);
+      gainNode.gain.exponentialRampToValueAtTime(0.001, startTime + 0.4);
+      
+      osc.connect(gainNode);
+      gainNode.connect(globalAudioCtx.destination);
+      osc.start(startTime);
+      osc.stop(startTime + 0.4);
+    };
+    
+    const now = globalAudioCtx.currentTime;
+    playNote(523.25, now);       // C5
+    playNote(659.25, now + 0.1); // E5
+    playNote(783.99, now + 0.2); // G5
+    playNote(1046.50, now + 0.3);// C6
+  } catch (e) {
+    console.error("Erreur son success", e);
+  }
+};
+
 export default function Home() {
   const [user, setUser] = useState<User | null>(null);
   const [events, setEvents] = useState<any[]>([]);
@@ -185,6 +214,8 @@ export default function Home() {
       setTasks(tasks.map(t => t.id === task.id ? { ...t, status: newStatus } : t));
       
       if (newStatus === 'done') {
+        initAudioContext();
+        playSuccessSound();
         const confetti = (await import("canvas-confetti")).default;
         confetti({
           particleCount: 150,
