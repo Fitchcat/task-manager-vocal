@@ -297,9 +297,17 @@ export default function Home() {
       const analyzeRes = await fetch("/api/analyze", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ text: transcribeData.text })
+        body: JSON.stringify({ text: transcribeData.text, tasks })
       });
       const analyzeData = await analyzeRes.json();
+
+      // Gestion de la réponse de type "dialogue"
+      if (analyzeData.intent === "query_tasks") {
+        if (isVoiceEnabled && analyzeData.responseMessage) {
+           playAudioResponse(analyzeData.responseMessage);
+        }
+        return; // Pas de création de tâche
+      }
 
       if (!analyzeData.title) {
         throw new Error("L'IA n'a pas pu extraire la tâche");
