@@ -26,6 +26,12 @@ const initAudioContext = () => {
       source.connect(globalAudioCtx.destination);
       source.start(0);
     } catch(e) {}
+
+    // Déverrouillage de la balise HTMLAudioElement globale
+    const audioEl = document.getElementById('voice-player') as HTMLAudioElement;
+    if (audioEl) {
+       audioEl.play().catch(()=>{});
+    }
   }
 };
 
@@ -226,17 +232,29 @@ export default function Home() {
         });
         const blob = await res.blob();
         const url = URL.createObjectURL(blob);
-        const audio = new Audio(url);
+        const audioEl = document.getElementById('voice-player') as HTMLAudioElement;
         
-        audio.play().catch(e => {
-            console.error("Erreur de lecture audio :", e);
+        if (audioEl) {
+          audioEl.src = url;
+          audioEl.play().catch(e => {
+              console.error("Erreur de lecture audio :", e);
+              resolve();
+          });
+          audioEl.onended = () => {
+            URL.revokeObjectURL(url);
             resolve();
-        });
-        
-        audio.onended = () => {
-          URL.revokeObjectURL(url);
-          resolve();
-        };
+          };
+        } else {
+          const audio = new Audio(url);
+          audio.play().catch(e => {
+              console.error("Erreur de lecture audio :", e);
+              resolve();
+          });
+          audio.onended = () => {
+            URL.revokeObjectURL(url);
+            resolve();
+          };
+        }
       } catch (e) {
         console.error("Erreur de lecture TTS :", e);
         resolve();
@@ -518,6 +536,7 @@ export default function Home() {
 
   return (
     <main className="container">
+      <audio id="voice-player" style={{ display: 'none' }} />
       <header style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: "1rem" }}>
         <h1 style={{ fontSize: "1.5rem", marginBottom: 0 }}>Task Manager</h1>
         {user ? (
