@@ -6,7 +6,7 @@ import { auth } from "@/lib/firebase";
 import { onAuthStateChanged, User } from "firebase/auth";
 import { getTodayEvents } from "@/lib/calendar";
 import { getUserTasks, addTask, updateTaskStatus, deleteTask, Task } from "@/lib/tasks";
-import { Mic, Flame, CalendarClock, Users, Archive, CheckCircle2, MessageSquare, Edit2, Trash2, CalendarDays } from "lucide-react";
+import { Mic, Flame, CalendarClock, Users, Archive, CheckCircle2, MessageSquare, Edit2, Trash2, CalendarDays, Volume2, VolumeX } from "lucide-react";
 
 let globalAudioCtx: any = null;
 let hasWelcomed = false;
@@ -601,20 +601,21 @@ export default function Home() {
                 display: 'flex',
                 alignItems: 'center',
                 gap: '0.8rem',
-                padding: '0.8rem 1.5rem',
+                padding: '0.6rem 1.2rem',
                 marginTop: '1rem',
                 borderRadius: '30px',
-                fontSize: '1.2rem',
-                fontWeight: 'bold',
-                backgroundColor: isVoiceEnabled ? '#34c759' : '#ff3b30',
-                color: '#fff',
-                border: 'none',
-                boxShadow: '0 4px 10px rgba(0,0,0,0.3)',
+                fontSize: '1.1rem',
+                fontWeight: '600',
+                backgroundColor: 'transparent',
+                color: isVoiceEnabled ? '#30d158' : '#ff453a',
+                border: `2px solid ${isVoiceEnabled ? '#30d158' : '#ff453a'}`,
+                boxShadow: isVoiceEnabled ? '0 0 15px rgba(48, 209, 88, 0.2)' : '0 0 15px rgba(255, 69, 58, 0.2)',
                 cursor: 'pointer',
                 transition: 'all 0.3s ease'
               }}
             >
-              {isVoiceEnabled ? '🔊 Toggle ON' : '🔇 Toggle OFF'}
+              {isVoiceEnabled ? <Volume2 size={24} /> : <VolumeX size={24} />}
+              {isVoiceEnabled ? 'Toggle ON' : 'Toggle OFF'}
             </button>
 
             <div style={{ height: "1.5rem", color: "var(--text-muted)", fontSize: "0.9rem" }}>
