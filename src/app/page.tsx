@@ -45,6 +45,28 @@ const initAudioContext = () => {
   }
 };
 
+const playBeep = () => {
+  if (!globalAudioCtx) return;
+  try {
+    const oscillator = globalAudioCtx.createOscillator();
+    const gainNode = globalAudioCtx.createGain();
+    
+    oscillator.type = 'sine';
+    oscillator.frequency.setValueAtTime(880, globalAudioCtx.currentTime); // Note A5
+    
+    gainNode.gain.setValueAtTime(0.1, globalAudioCtx.currentTime);
+    gainNode.gain.exponentialRampToValueAtTime(0.001, globalAudioCtx.currentTime + 0.1);
+    
+    oscillator.connect(gainNode);
+    gainNode.connect(globalAudioCtx.destination);
+    
+    oscillator.start();
+    oscillator.stop(globalAudioCtx.currentTime + 0.1);
+  } catch(e) {
+    console.error("Erreur beep", e);
+  }
+};
+
 export default function Home() {
   const [user, setUser] = useState<User | null>(null);
   const [events, setEvents] = useState<any[]>([]);
@@ -219,6 +241,7 @@ export default function Home() {
     if (isProcessing || isRecording) return;
     
     initAudioContext(); // Déverrouillage indispensable pour iOS Safari
+    playBeep(); // Feedback sonore immédiat
     
     if (!hasWelcomed && !taskIdToComment) {
       hasWelcomed = true;
