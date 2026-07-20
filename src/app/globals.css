@@ -1,14 +1,14 @@
 :root {
-  /* Color Palette - Light Mode */
-  --bg-color: hsl(210, 20%, 98%);
-  --surface-color: hsl(0, 0%, 100%);
-  --text-primary: hsl(240, 10%, 10%);
-  --text-secondary: hsl(240, 5%, 40%);
-  --primary-color: hsl(252, 80%, 60%);
-  --primary-hover: hsl(252, 80%, 55%);
+  /* Color Palette - Dark Mode (Forced) */
+  --bg-color: hsl(240, 10%, 8%);
+  --surface-color: hsl(240, 10%, 12%);
+  --text-primary: hsl(0, 0%, 98%);
+  --text-secondary: hsl(240, 5%, 70%);
+  --primary-color: hsl(252, 80%, 65%);
+  --primary-hover: hsl(252, 80%, 75%);
   --accent-color: hsl(190, 80%, 50%);
   
-  --border-color: hsl(240, 10%, 90%);
+  --border-color: hsl(240, 10%, 20%);
   
   /* Status Colors */
   --status-todo: hsl(210, 80%, 60%);
@@ -16,9 +16,9 @@
   --status-done: hsl(150, 60%, 45%);
 
   /* Elevations / Shadows */
-  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.04);
-  --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.08);
-  --shadow-lg: 0 16px 48px rgba(0, 0, 0, 0.12);
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.2);
+  --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 16px 48px rgba(0, 0, 0, 0.5);
   
   /* Radius */
   --radius-sm: 8px;
@@ -29,24 +29,6 @@
   /* Transitions */
   --transition-fast: 0.15s ease;
   --transition-normal: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    /* Color Palette - Dark Mode */
-    --bg-color: hsl(240, 10%, 8%);
-    --surface-color: hsl(240, 10%, 12%);
-    --text-primary: hsl(0, 0%, 98%);
-    --text-secondary: hsl(240, 5%, 70%);
-    --primary-color: hsl(252, 80%, 65%);
-    --primary-hover: hsl(252, 80%, 75%);
-    
-    --border-color: hsl(240, 10%, 20%);
-    
-    --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.2);
-    --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.4);
-    --shadow-lg: 0 16px 48px rgba(0, 0, 0, 0.5);
-  }
 }
 
 * {

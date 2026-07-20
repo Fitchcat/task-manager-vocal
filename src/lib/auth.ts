@@ -4,10 +4,7 @@ import { auth } from './firebase';
 const provider = new GoogleAuthProvider();
 // Demander l'accès en lecture et écriture au calendrier Google
 provider.addScope('https://www.googleapis.com/auth/calendar');
-// Forcer Google à redemander l'autorisation pour s'assurer qu'on récupère bien les droits sur l'agenda
-provider.setCustomParameters({
-  prompt: 'consent'
-});
+
 
 export const loginWithGoogle = async () => {
   try {

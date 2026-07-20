@@ -367,11 +367,11 @@ export default function Home() {
             onChange={() => toggleTaskStatus(task)}
             style={{ width: '20px', height: '20px', accentColor: 'var(--primary-color)', cursor: 'pointer', flexShrink: 0 }}
           />
-          <div style={{ flex: 1, textDecoration: task.status === 'done' ? 'line-through' : 'none', color: task.status === 'done' ? 'var(--text-muted)' : 'white' }}>
+          <div style={{ flex: 1, textDecoration: task.status === 'done' ? 'line-through' : 'none', color: task.status === 'done' ? 'var(--text-secondary)' : 'var(--text-primary)' }}>
             <div style={{ fontSize: '1rem', fontWeight: 500 }}>{task.title}</div>
             {task.dueDate && <div style={{ fontSize: '0.8rem', color: 'var(--primary-color)', marginTop: '0.2rem' }}>🗓 {task.dueDate}</div>}
           </div>
-          <button onClick={() => startEditing(task)} style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', fontSize: '1rem' }}>✏️</button>
+          <button onClick={() => startEditing(task)} style={{ background: 'none', border: 'none', color: 'var(--text-secondary)', cursor: 'pointer', fontSize: '1rem' }}>✏️</button>
           <button onClick={() => {if(task.id) deleteTask(task.id).then(()=>loadTasks(user?.uid || ''))}} style={{ background: 'none', border: 'none', color: '#ff3b30', cursor: 'pointer', fontSize: '1.2rem', marginLeft: '0.5rem' }}>✕</button>
         </div>
       )}
@@ -379,21 +379,21 @@ export default function Home() {
   );
 
   const Section = ({ title, tasksArray, isOpen, toggleKey, color, icon }: any) => (
-    <div style={{ marginBottom: '1rem', background: '#1c1c1e', borderRadius: '16px', overflow: 'hidden' }}>
+    <div style={{ marginBottom: '1rem', background: 'var(--surface-color)', borderRadius: '16px', overflow: 'hidden', border: '1px solid var(--border-color)' }}>
       <button 
         onClick={() => toggleSection(toggleKey)}
         style={{ width: '100%', display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '1rem', background: 'none', border: 'none', color: 'white', cursor: 'pointer', textAlign: 'left' }}
       >
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontWeight: 600 }}>
           <span style={{ color }}>{icon}</span>
-          {title} <span style={{ color: 'var(--text-muted)', fontSize: '0.9rem', fontWeight: 'normal' }}>({tasksArray.length})</span>
+          {title} <span style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', fontWeight: 'normal' }}>({tasksArray.length})</span>
         </div>
         <span style={{ transform: isOpen ? 'rotate(180deg)' : 'none', transition: '0.3s' }}>▼</span>
       </button>
       {isOpen && (
         <div style={{ padding: '0 1rem 1rem 1rem' }}>
           {tasksArray.length === 0 ? (
-             <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', margin: 0, paddingLeft: '2rem' }}>Rien pour le moment.</p>
+             <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', margin: 0, paddingLeft: '2rem' }}>Rien pour le moment.</p>
           ) : (
              tasksArray.map(renderTask)
           )}
