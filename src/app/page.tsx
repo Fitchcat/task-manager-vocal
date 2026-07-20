@@ -7,6 +7,7 @@ import { onAuthStateChanged, User } from "firebase/auth";
 import { getTodayEvents } from "@/lib/calendar";
 import { getUserTasks, addTask, updateTaskStatus, deleteTask, Task } from "@/lib/tasks";
 import { Mic, Flame, CalendarClock, Users, Archive, CheckCircle2, MessageSquare, Edit2, Trash2, CalendarDays, Volume2, VolumeX, Loader2 } from "lucide-react";
+import confetti from "canvas-confetti";
 
 let globalAudioCtx: any = null;
 let hasWelcomed = false;
@@ -183,6 +184,16 @@ export default function Home() {
       const newStatus = task.status === 'done' ? 'todo' : 'done';
       await updateTaskStatus(task.id, newStatus);
       setTasks(tasks.map(t => t.id === task.id ? { ...t, status: newStatus } : t));
+      
+      if (newStatus === 'done') {
+        confetti({
+          particleCount: 120,
+          spread: 80,
+          origin: { y: 0.6 },
+          colors: ['#2563EB', '#10B981', '#8B5CF6', '#F59E0B'],
+          zIndex: 9999
+        });
+      }
     } catch (error) {
       console.error(error);
     }
