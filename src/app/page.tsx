@@ -565,7 +565,7 @@ export default function Home() {
                 transition: 'all 0.3s ease'
               }}
             >
-              {isVoiceEnabled ? '🔊 Synthèse Vocale : ON' : '🔇 Synthèse Vocale : OFF'}
+              {isVoiceEnabled ? '🔊 Toggle ON' : '🔇 Toggle OFF'}
             </button>
 
             <div style={{ height: "1.5rem", color: "var(--text-muted)", fontSize: "0.9rem" }}>
