@@ -8,6 +8,7 @@ import { getTodayEvents } from "@/lib/calendar";
 import { getUserTasks, addTask, updateTaskStatus, deleteTask, Task } from "@/lib/tasks";
 
 let globalAudioCtx: any = null;
+let hasWelcomed = false;
 
 const initAudioContext = () => {
   if (typeof window !== 'undefined') {
@@ -125,6 +126,7 @@ export default function Home() {
         priority: 'normal',
         isUrgent: newTaskUrgent,
         isImportant: newTaskImportant,
+        category: 'perso',
         userId: user.uid
       });
       setNewTaskTitle("");
@@ -148,7 +150,19 @@ export default function Home() {
     }
   };
 
-  const startRecording = async () => {
+  const toggleCategory = async (task: Task) => {
+    if (!task.id) return;
+    const newCat = task.category === 'pro' ? 'perso' : 'pro';
+    try {
+      const { updateTaskDetails } = await import("@/lib/tasks");
+      await updateTaskDetails(task.id, { category: newCat });
+      setTasks(tasks.map(t => t.id === task.id ? { ...t, category: newCat } : t));
+    } catch(e) {
+      console.error(e);
+    }
+  };
+
+  const startRecording = async (taskIdToComment?: string) => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       const recorder = new MediaRecorder(stream);
@@ -160,7 +174,11 @@ export default function Home() {
 
       recorder.onstop = async () => {
         const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
-        await handleAudioUpload(audioBlob);
+        if (taskIdToComment) {
+          await handleCommentUpload(audioBlob, taskIdToComment);
+        } else {
+          await handleAudioUpload(audioBlob);
+        }
         stream.getTracks().forEach(track => track.stop());
       };
 
@@ -180,34 +198,81 @@ export default function Home() {
     }
   };
 
-  const toggleRecording = () => {
+  const toggleRecording = async (taskIdToComment?: string) => {
     initAudioContext(); // Déverrouillage indispensable pour iOS Safari
     if (isRecording) {
       stopRecording();
     } else {
-      startRecording();
+      if (!hasWelcomed && !taskIdToComment) {
+        hasWelcomed = true;
+        setIsProcessing(true);
+        setProcessingStep("Accueil vocal...");
+        await playAudioResponse("Bonjour Pascal, comment puis-je t'aider tout court ?");
+        setIsProcessing(false);
+        setProcessingStep("");
+      }
+      startRecording(taskIdToComment);
     }
   };
 
-  // Lecture de la réponse vocale standardisée (sans réverb synthétique pour éviter le bug de voix extraterrestre sur iPhone)
-  const playAudioResponse = async (text: string) => {
+  // Lecture de la réponse vocale standardisée avec attente de la fin
+  const playAudioResponse = async (text: string): Promise<void> => {
+    return new Promise(async (resolve) => {
+      try {
+        const res = await fetch("/api/tts", { 
+          method: "POST", 
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({text}) 
+        });
+        const blob = await res.blob();
+        const url = URL.createObjectURL(blob);
+        const audio = new Audio(url);
+        
+        audio.play().catch(e => {
+            console.error("Erreur de lecture audio :", e);
+            resolve();
+        });
+        
+        audio.onended = () => {
+          URL.revokeObjectURL(url);
+          resolve();
+        };
+      } catch (e) {
+        console.error("Erreur de lecture TTS :", e);
+        resolve();
+      }
+    });
+  };
+
+  const handleCommentUpload = async (audioBlob: Blob, taskId: string) => {
+    setIsProcessing(true);
+    setProcessingStep("Transcription du commentaire...");
     try {
-      const res = await fetch("/api/tts", { 
-        method: "POST", 
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({text}) 
-      });
-      const blob = await res.blob();
-      const url = URL.createObjectURL(blob);
-      const audio = new Audio(url);
+      const formData = new FormData();
+      formData.append("file", audioBlob, "audio.webm");
+      const transcribeRes = await fetch("/api/transcribe", { method: "POST", body: formData });
+      const transcribeData = await transcribeRes.json();
       
-      audio.play().catch(e => console.error("Erreur de lecture audio :", e));
+      if (!transcribeData.text) throw new Error("Erreur de transcription");
+
+      const { updateTaskDetails } = await import("@/lib/tasks");
+      const existingTask = tasks.find(t => t.id === taskId);
+      const newComment = existingTask?.comment 
+        ? existingTask.comment + "\n\n" + transcribeData.text 
+        : transcribeData.text;
       
-      audio.onended = () => {
-        URL.revokeObjectURL(url);
-      };
-    } catch (e) {
-      console.error("Erreur de lecture TTS :", e);
+      await updateTaskDetails(taskId, { comment: newComment });
+      setTasks(tasks.map(t => t.id === taskId ? { ...t, comment: newComment } : t));
+      
+      if (isVoiceEnabled) {
+          playAudioResponse("Commentaire ajouté à la tâche.");
+      }
+    } catch(e) {
+        console.error(e);
+        alert("Erreur lors de l'ajout du commentaire.");
+    } finally {
+        setIsProcessing(false);
+        setProcessingStep("");
     }
   };
 
@@ -250,10 +315,10 @@ export default function Home() {
           isImportant: analyzeData.isImportant || false,
           status: 'todo',
           priority: 'normal',
+          category: analyzeData.category || 'perso',
           userId: user.uid
         };
         
-        // Firebase déteste 'undefined', donc on ne l'ajoute que si la date existe vraiment
         if (analyzeData.dueDate) {
           newTaskData.dueDate = analyzeData.dueDate;
         }
@@ -266,7 +331,7 @@ export default function Home() {
              const { addEventToCalendar } = await import("@/lib/calendar");
              await addEventToCalendar(analyzeData.title, analyzeData.eventStartTime, analyzeData.eventEndTime);
              createdEvent = true;
-             fetchEvents(); // Recharger les événements
+             fetchEvents();
           } catch(e) { console.error("Erreur ajout calendrier", e); }
         }
 
@@ -280,7 +345,7 @@ export default function Home() {
         
         let phrase = `C'est noté. J'ai ajouté ${newTaskData.title} dans la section ${groupName}.`;
         if (createdEvent) {
-           phrase = `C'est noté. J'ai programmé l'événement ${newTaskData.title} dans votre calendrier Google avec des rappels, et je l'ai ajouté à vos tâches.`;
+           phrase = `C'est noté. J'ai programmé l'événement ${newTaskData.title} dans votre calendrier Google avec des rappels.`;
         }
         
         if (isVoiceEnabled) {
@@ -326,14 +391,12 @@ export default function Home() {
 
   const saveEditing = async (taskId: string) => {
     try {
-      // Import updateTaskDetails dynamicly or ensure it's available
       const { updateTaskDetails } = await import("@/lib/tasks");
       await updateTaskDetails(taskId, {
         title: editTitle,
         isUrgent: editUrgent,
         isImportant: editImportant
       });
-      // Mettre à jour l'état local
       setTasks(tasks.map(t => t.id === taskId ? { ...t, title: editTitle, isUrgent: editUrgent, isImportant: editImportant } : t));
       setEditingTaskId(null);
     } catch (error) {
@@ -369,20 +432,54 @@ export default function Home() {
           </div>
         </div>
       ) : (
-        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-          <input 
-            type="checkbox" 
-            checked={task.status === 'done'} 
-            onChange={() => toggleTaskStatus(task)}
-            style={{ width: '28px', height: '28px', accentColor: 'var(--primary-color)', cursor: 'pointer', flexShrink: 0 }}
-          />
-          <div style={{ flex: 1, textDecoration: task.status === 'done' ? 'line-through' : 'none', color: task.status === 'done' ? 'var(--text-secondary)' : 'var(--text-primary)' }}>
-            <div style={{ fontSize: '1.1rem', fontWeight: 500 }}>{task.title}</div>
-            {task.dueDate && <div style={{ fontSize: '0.9rem', color: 'var(--primary-color)', marginTop: '0.2rem' }}>🗓 {task.dueDate}</div>}
+        <>
+          <div style={{ display: 'flex', alignItems: 'flex-start', gap: '1rem' }}>
+            <input 
+              type="checkbox" 
+              checked={task.status === 'done'} 
+              onChange={() => toggleTaskStatus(task)}
+              style={{ width: '28px', height: '28px', marginTop: '0.3rem', accentColor: 'var(--primary-color)', cursor: 'pointer', flexShrink: 0 }}
+            />
+            <div style={{ flex: 1, textDecoration: task.status === 'done' ? 'line-through' : 'none', color: task.status === 'done' ? 'var(--text-secondary)' : 'var(--text-primary)' }}>
+              <div style={{ fontSize: '1.1rem', fontWeight: 500, lineHeight: '1.4' }}>
+                {task.title}
+                <span 
+                  onClick={(e) => { e.stopPropagation(); toggleCategory(task); }}
+                  style={{
+                    marginLeft: '8px', 
+                    fontSize: '0.75rem', 
+                    padding: '2px 8px', 
+                    borderRadius: '12px', 
+                    backgroundColor: task.category === 'pro' ? '#ff9500' : '#34c759', 
+                    color: '#fff',
+                    cursor: 'pointer',
+                    verticalAlign: 'middle',
+                    fontWeight: 'bold',
+                    display: 'inline-block'
+                  }}
+                >
+                  {task.category === 'pro' ? 'PRO' : 'PERSO'}
+                </span>
+              </div>
+              {task.dueDate && <div style={{ fontSize: '0.9rem', color: 'var(--primary-color)', marginTop: '0.2rem' }}>🗓 {task.dueDate}</div>}
+            </div>
+            <div style={{ display: 'flex', gap: '0.2rem' }}>
+              <button 
+                onClick={() => isRecording ? stopRecording() : toggleRecording(task.id)} 
+                title="Dicter un commentaire"
+                style={{ background: 'none', border: 'none', color: isRecording ? '#ff3b30' : 'var(--text-secondary)', cursor: 'pointer', fontSize: '1.3rem', padding: '0.5rem', animation: isRecording ? 'pulse 1.5s infinite' : 'none' }}>
+                💬
+              </button>
+              <button onClick={() => startEditing(task)} style={{ background: 'none', border: 'none', color: 'var(--text-secondary)', cursor: 'pointer', fontSize: '1.3rem', padding: '0.5rem' }}>✏️</button>
+              <button onClick={() => {if(task.id) deleteTask(task.id).then(()=>loadTasks(user?.uid || ''))}} style={{ background: 'none', border: 'none', color: '#ff3b30', cursor: 'pointer', fontSize: '1.5rem', padding: '0.5rem' }}>✕</button>
+            </div>
           </div>
-          <button onClick={() => startEditing(task)} style={{ background: 'none', border: 'none', color: 'var(--text-secondary)', cursor: 'pointer', fontSize: '1.2rem', padding: '0.5rem' }}>✏️</button>
-          <button onClick={() => {if(task.id) deleteTask(task.id).then(()=>loadTasks(user?.uid || ''))}} style={{ background: 'none', border: 'none', color: '#ff3b30', cursor: 'pointer', fontSize: '1.5rem', padding: '0.5rem', marginLeft: '0.2rem' }}>✕</button>
-        </div>
+          {task.comment && (
+            <div style={{ marginTop: '0.5rem', marginLeft: '3.2rem', padding: '0.8rem', backgroundColor: 'rgba(255,255,255,0.05)', borderRadius: '8px', fontSize: '0.95rem', color: 'var(--text-secondary)', fontStyle: 'italic', whiteSpace: 'pre-wrap' }}>
+              {task.comment}
+            </div>
+          )}
+        </>
       )}
     </div>
   );
@@ -430,7 +527,7 @@ export default function Home() {
             <button 
               className={`mic-button ${isRecording ? "recording" : ""}`} 
               aria-label="Dictate task"
-              onClick={toggleRecording}
+              onClick={() => toggleRecording()}
               disabled={isProcessing}
               style={isRecording ? {
                 animation: "pulse 1.5s infinite",
@@ -488,9 +585,21 @@ export default function Home() {
             </form>
           </section>
 
-          {/* SECTION CALENDRIER (toujours présente pour l'info) */}
+          {/* SECTION CALENDRIER */}
           <section style={{ background: "var(--surface-color)", padding: "1.5rem", borderRadius: "20px", marginBottom: "2rem" }}>
-            <h2 style={{ fontSize: "1.4rem", marginBottom: "1rem" }}>Agenda d'aujourd'hui</h2>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: "1rem" }}>
+              <h2 style={{ fontSize: "1.4rem", margin: 0 }}>Agenda d'aujourd'hui</h2>
+              <a 
+                href="https://calendar.google.com/calendar/r" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="btn btn-secondary"
+                style={{ padding: "0.5rem 1rem", fontSize: "0.9rem", textDecoration: "none", display: 'flex', alignItems: 'center', gap: '0.5rem' }}
+              >
+                📅 Ouvrir Google Calendar
+              </a>
+            </div>
+            
             {loadingEvents ? (
               <p className="text-muted" style={{ textAlign: "center" }}>Chargement de l'agenda...</p>
             ) : events.length > 0 ? (
@@ -516,3 +625,4 @@ export default function Home() {
     </main>
   );
 }
+

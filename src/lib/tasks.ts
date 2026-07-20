@@ -14,6 +14,8 @@ export interface Task {
   isUrgent?: boolean;
   isImportant?: boolean;
   dueDate?: string;
+  category?: 'perso' | 'pro';
+  comment?: string;
 }
 
 // Récupérer toutes les tâches d'un utilisateur
@@ -37,7 +39,9 @@ export const getUserTasks = async (userId: string): Promise<Task[]> => {
         createdAt: data.createdAt instanceof Timestamp ? data.createdAt.toDate() : new Date(data.createdAt),
         isUrgent: data.isUrgent || false,
         isImportant: data.isImportant || false,
-        dueDate: data.dueDate
+        dueDate: data.dueDate,
+        category: data.category || 'perso',
+        comment: data.comment || ''
       } as Task;
     });
 
