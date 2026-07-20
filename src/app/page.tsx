@@ -409,6 +409,7 @@ export default function Home() {
 
   // États pour l'édition d'une tâche
   const [editingTaskId, setEditingTaskId] = useState<string | null>(null);
+  const [expandedComments, setExpandedComments] = useState<Set<string>>(new Set());
   const editTitleRef = useRef("");
   const editCommentRef = useRef("");
   const [editUrgent, setEditUrgent] = useState(false);
@@ -439,6 +440,15 @@ export default function Home() {
       console.error(error);
       alert("Erreur lors de la modification");
     }
+  };
+
+  const toggleComment = (taskId: string) => {
+    setExpandedComments(prev => {
+      const next = new Set(prev);
+      if (next.has(taskId)) next.delete(taskId);
+      else next.add(taskId);
+      return next;
+    });
   };
 
   const renderTask = (task: Task) => (
@@ -509,9 +519,22 @@ export default function Home() {
             </div>
             <div style={{ display: 'flex', gap: '0.2rem' }}>
               <button 
-                onClick={() => startEditing(task)}
-                title="Ajouter/Modifier un commentaire"
-                style={{ background: 'none', border: 'none', color: 'var(--text-secondary)', cursor: 'pointer', padding: '0.5rem' }}>
+                onClick={() => {
+                  if (task.comment) {
+                    toggleComment(task.id!);
+                  } else {
+                    startEditing(task);
+                  }
+                }}
+                title={task.comment ? "Voir le commentaire" : "Ajouter un commentaire"}
+                style={{ 
+                  background: 'none', 
+                  border: 'none', 
+                  color: task.comment ? 'var(--primary-color)' : 'var(--text-secondary)', 
+                  cursor: 'pointer', 
+                  padding: '0.5rem',
+                  filter: task.comment ? 'drop-shadow(0 0 8px rgba(37, 99, 235, 0.4))' : 'none'
+                }}>
                 <MessageSquare size={20} />
               </button>
               <button onClick={() => startEditing(task)} style={{ background: 'none', border: 'none', color: 'var(--text-secondary)', cursor: 'pointer', padding: '0.5rem' }}>
@@ -522,10 +545,11 @@ export default function Home() {
               </button>
             </div>
           </div>
-          {task.comment && (
+          {task.comment && expandedComments.has(task.id!) && (
             <div 
               onClick={() => startEditing(task)}
-              style={{ cursor: 'text', marginTop: '0.5rem', marginLeft: '3.2rem', padding: '0.8rem', backgroundColor: 'rgba(255,255,255,0.05)', borderRadius: '8px', fontSize: '0.95rem', color: 'var(--text-secondary)', fontStyle: 'italic', whiteSpace: 'pre-wrap' }}
+              title="Cliquez pour modifier"
+              style={{ cursor: 'text', marginTop: '0.5rem', marginLeft: '3.2rem', padding: '0.8rem', backgroundColor: 'rgba(255,255,255,0.05)', borderRadius: '8px', fontSize: '0.95rem', color: 'var(--text-secondary)', fontStyle: 'italic', whiteSpace: 'pre-wrap', animation: 'fadeIn 0.2s ease' }}
             >
               {task.comment}
             </div>
