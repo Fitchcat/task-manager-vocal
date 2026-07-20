@@ -199,3 +199,7 @@ h1 {
   border-color: var(--primary-color);
   box-shadow: 0 0 0 2px color-mix(in srgb, var(--primary-color) 30%, transparent);
 }
+
+@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+.animate-spin { animation: spin 1s linear infinite; }
+

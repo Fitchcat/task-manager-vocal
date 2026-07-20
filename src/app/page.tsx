@@ -6,7 +6,7 @@ import { auth } from "@/lib/firebase";
 import { onAuthStateChanged, User } from "firebase/auth";
 import { getTodayEvents } from "@/lib/calendar";
 import { getUserTasks, addTask, updateTaskStatus, deleteTask, Task } from "@/lib/tasks";
-import { Mic, Flame, CalendarClock, Users, Archive, CheckCircle2, MessageSquare, Edit2, Trash2, CalendarDays, Volume2, VolumeX } from "lucide-react";
+import { Mic, Flame, CalendarClock, Users, Archive, CheckCircle2, MessageSquare, Edit2, Trash2, CalendarDays, Volume2, VolumeX, Loader2 } from "lucide-react";
 
 let globalAudioCtx: any = null;
 let hasWelcomed = false;
@@ -618,7 +618,7 @@ export default function Home() {
                 } : {})
               }}
             >
-              {isProcessing ? "⏳" : <Mic size={36} />}
+              {isProcessing ? <Loader2 className="animate-spin" size={36} /> : <Mic size={36} />}
             </button>
 
             <button 
