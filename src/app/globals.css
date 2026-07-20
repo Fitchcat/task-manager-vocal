@@ -1,34 +1,35 @@
 :root {
-  /* Color Palette - Dark Mode (Forced) */
-  --bg-color: hsl(240, 10%, 8%);
-  --surface-color: hsl(240, 10%, 12%);
-  --text-primary: hsl(0, 0%, 98%);
-  --text-secondary: hsl(240, 5%, 70%);
-  --primary-color: hsl(252, 80%, 65%);
-  --primary-hover: hsl(252, 80%, 75%);
-  --accent-color: hsl(190, 80%, 50%);
+  /* iOS Glass Dark Mode */
+  --bg-color: #0a0a0f;
+  --surface-color: rgba(255, 255, 255, 0.06);
+  --text-primary: rgba(255, 255, 255, 0.95);
+  --text-secondary: rgba(255, 255, 255, 0.6);
+  --primary-color: #2563EB;
+  --primary-hover: #3B82F6;
+  --accent-color: #8B5CF6;
   
-  --border-color: hsl(240, 10%, 20%);
+  --border-color: rgba(255, 255, 255, 0.1);
+  --glass-blur: blur(20px);
   
   /* Status Colors */
-  --status-todo: hsl(210, 80%, 60%);
-  --status-waiting: hsl(40, 90%, 50%);
-  --status-done: hsl(150, 60%, 45%);
+  --status-todo: #3B82F6;
+  --status-waiting: #F59E0B;
+  --status-done: #10B981;
 
   /* Elevations / Shadows */
-  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.2);
-  --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.4);
-  --shadow-lg: 0 16px 48px rgba(0, 0, 0, 0.5);
+  --shadow-sm: 0 4px 12px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 12px 32px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 24px 64px rgba(0, 0, 0, 0.5);
   
   /* Radius */
-  --radius-sm: 8px;
-  --radius-md: 16px;
-  --radius-lg: 24px;
+  --radius-sm: 12px;
+  --radius-md: 20px;
+  --radius-lg: 28px;
   --radius-full: 9999px;
   
   /* Transitions */
-  --transition-fast: 0.15s ease;
-  --transition-normal: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-fast: 0.15s ease-out;
+  --transition-normal: 0.4s cubic-bezier(0.16, 1, 0.3, 1); /* iOS Spring feel */
 }
 
 * {
@@ -38,13 +39,15 @@
 }
 
 body {
-  background-color: var(--bg-color);
+  background: radial-gradient(circle at 10% 0%, #1a1a2e 0%, var(--bg-color) 40%),
+              radial-gradient(circle at 90% 100%, #1e1b4b 0%, var(--bg-color) 40%);
+  background-attachment: fixed;
   color: var(--text-primary);
-  font-family: var(--font-geist-sans), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  font-family: var(--font-inter), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   line-height: 1.5;
-  transition: background-color var(--transition-normal), color var(--transition-normal);
+  min-height: 100vh;
 }
 
 a {
@@ -67,12 +70,13 @@ button {
 }
 
 .glass-panel {
-  background: color-mix(in srgb, var(--surface-color) 80%, transparent);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid var(--border-color);
+  background: var(--surface-color);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border: var(--border-color);
   border-radius: var(--radius-md);
-  box-shadow: var(--shadow-md);
+  box-shadow: var(--shadow-sm);
+  transition: all var(--transition-normal);
 }
 
 /* Buttons */

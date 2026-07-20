@@ -414,7 +414,7 @@ export default function Home() {
   };
 
   const renderTask = (task: Task) => (
-    <div key={task.id} style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', padding: '0.8rem', background: 'var(--surface-color)', borderRadius: '12px', marginBottom: '0.5rem' }}>
+    <div key={task.id} className="glass-panel" style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', padding: '0.8rem', marginBottom: '0.5rem' }}>
       
       {editingTaskId === task.id ? (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.8rem' }}>
@@ -493,7 +493,7 @@ export default function Home() {
   );
 
   const Section = ({ title, tasksArray, isOpen, toggleKey, color, icon }: any) => (
-    <div style={{ marginBottom: '1rem', background: 'var(--surface-color)', borderRadius: '16px', overflow: 'hidden', border: '1px solid var(--border-color)' }}>
+    <div className="glass-panel" style={{ marginBottom: '1rem', overflow: 'hidden' }}>
       <button 
         onClick={() => toggleSection(toggleKey)}
         style={{ width: '100%', display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '1rem', background: 'none', border: 'none', color: 'white', cursor: 'pointer', textAlign: 'left' }}
@@ -585,7 +585,7 @@ export default function Home() {
           </section>
 
           {/* AJOUT MANUEL */}
-          <section style={{ background: "var(--surface-color)", padding: "1rem", borderRadius: "16px", marginBottom: "2rem" }}>
+          <section className="glass-panel" style={{ padding: "1rem", marginBottom: "2rem" }}>
             <form onSubmit={handleAddTask} style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
               <div style={{ display: "flex", gap: "0.5rem" }}>
                 <input 
@@ -609,7 +609,7 @@ export default function Home() {
           </section>
 
           {/* SECTION CALENDRIER */}
-          <section style={{ background: "var(--surface-color)", padding: "1.5rem", borderRadius: "20px", marginBottom: "2rem" }}>
+          <section className="glass-panel" style={{ padding: "1.5rem", marginBottom: "2rem" }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: "1rem" }}>
               <h2 style={{ fontSize: "1.4rem", margin: 0 }}>Agenda d'aujourd'hui</h2>
               <a 
