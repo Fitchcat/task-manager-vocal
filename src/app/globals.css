@@ -171,3 +171,21 @@ h1 {
 .mic-button:active {
   transform: scale(0.95);
 }
+
+.input-field {
+  flex: 1;
+  width: 100%;
+  padding: 1rem 1.2rem;
+  font-size: 1.1rem; /* 16px min pour éviter le zoom automatique sur iPhone */
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-color);
+  background-color: var(--bg-color);
+  color: var(--text-primary);
+  outline: none;
+  transition: all var(--transition-fast);
+}
+
+.input-field:focus {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--primary-color) 30%, transparent);
+}
