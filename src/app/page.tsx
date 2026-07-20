@@ -6,6 +6,7 @@ import { auth } from "@/lib/firebase";
 import { onAuthStateChanged, User } from "firebase/auth";
 import { getTodayEvents } from "@/lib/calendar";
 import { getUserTasks, addTask, updateTaskStatus, deleteTask, Task } from "@/lib/tasks";
+import { Mic, Flame, CalendarClock, Users, Archive, CheckCircle2, MessageSquare, Edit2, Trash2, CalendarDays } from "lucide-react";
 
 let globalAudioCtx: any = null;
 let hasWelcomed = false;
@@ -511,11 +512,15 @@ export default function Home() {
                 onPointerLeave={handlePointerUp}
                 onContextMenu={(e) => e.preventDefault()}
                 title="Maintenir pour dicter un commentaire"
-                style={{ background: 'none', border: 'none', color: isRecording ? '#ff3b30' : 'var(--text-secondary)', cursor: 'pointer', fontSize: '1.3rem', padding: '0.5rem', animation: isRecording ? 'pulse 1.5s infinite' : 'none', userSelect: 'none', WebkitUserSelect: 'none' as any }}>
-                💬
+                style={{ background: 'none', border: 'none', color: isRecording ? '#ff3b30' : 'var(--text-secondary)', cursor: 'pointer', padding: '0.5rem', animation: isRecording ? 'pulse 1.5s infinite' : 'none', userSelect: 'none', WebkitUserSelect: 'none' as any }}>
+                <MessageSquare size={20} />
               </button>
-              <button onClick={() => startEditing(task)} style={{ background: 'none', border: 'none', color: 'var(--text-secondary)', cursor: 'pointer', fontSize: '1.3rem', padding: '0.5rem' }}>✏️</button>
-              <button onClick={() => {if(task.id) deleteTask(task.id).then(()=>loadTasks(user?.uid || ''))}} style={{ background: 'none', border: 'none', color: '#ff3b30', cursor: 'pointer', fontSize: '1.5rem', padding: '0.5rem' }}>✕</button>
+              <button onClick={() => startEditing(task)} style={{ background: 'none', border: 'none', color: 'var(--text-secondary)', cursor: 'pointer', padding: '0.5rem' }}>
+                <Edit2 size={20} />
+              </button>
+              <button onClick={() => {if(task.id) deleteTask(task.id).then(()=>loadTasks(user?.uid || ''))}} style={{ background: 'none', border: 'none', color: '#ff3b30', cursor: 'pointer', padding: '0.5rem' }}>
+                <Trash2 size={20} />
+              </button>
             </div>
           </div>
           {task.comment && (
@@ -534,8 +539,8 @@ export default function Home() {
         onClick={() => toggleSection(toggleKey)}
         style={{ width: '100%', display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '1rem', background: 'none', border: 'none', color: 'white', cursor: 'pointer', textAlign: 'left' }}
       >
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontWeight: 600, fontSize: '1.1rem' }}>
-          <span style={{ color, fontSize: '1.3rem' }}>{icon}</span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem', fontWeight: 600, fontSize: '1.1rem' }}>
+          <span style={{ color, display: 'flex', alignItems: 'center' }}>{icon}</span>
           {title} <span style={{ color: 'var(--text-secondary)', fontSize: '1rem', fontWeight: 'normal' }}>({tasksArray.length})</span>
         </div>
         <span style={{ transform: isOpen ? 'rotate(180deg)' : 'none', transition: '0.3s' }}>▼</span>
@@ -587,7 +592,7 @@ export default function Home() {
                 } : {})
               }}
             >
-              {isProcessing ? "⏳" : <div className="text-4xl">🎤</div>}
+              {isProcessing ? "⏳" : <Mic size={36} />}
             </button>
 
             <button 
@@ -622,11 +627,11 @@ export default function Home() {
           {/* MATRICE D'EISENHOWER */}
           <section style={{ marginBottom: "2rem" }}>
             <h2 style={{ fontSize: "1.4rem", marginBottom: "1rem" }}>Mes Tâches</h2>
-            <Section title="À faire aujourd'hui" tasksArray={urgentImportant} isOpen={openSections.urgentImportant} toggleKey="urgentImportant" color="#ff3b30" icon="🔴" />
-            <Section title="À planifier" tasksArray={importantNotUrgent} isOpen={openSections.important} toggleKey="important" color="#ffd60a" icon="🟡" />
-            <Section title="À déléguer / Gérer" tasksArray={urgentNotImportant} isOpen={openSections.urgent} toggleKey="urgent" color="#0a84ff" icon="🔵" />
-            <Section title="Plus tard / Backlog" tasksArray={backlog} isOpen={openSections.backlog} toggleKey="backlog" color="#8e8e93" icon="⚪️" />
-            <Section title="Terminées" tasksArray={doneTasks} isOpen={openSections.done} toggleKey="done" color="#34c759" icon="✅" />
+            <Section title="À faire aujourd'hui" tasksArray={urgentImportant} isOpen={openSections.urgentImportant} toggleKey="urgentImportant" color="#ff453a" icon={<Flame size={22} />} />
+            <Section title="À planifier" tasksArray={importantNotUrgent} isOpen={openSections.important} toggleKey="important" color="#ffd60a" icon={<CalendarClock size={22} />} />
+            <Section title="À déléguer / Gérer" tasksArray={urgentNotImportant} isOpen={openSections.urgent} toggleKey="urgent" color="#0a84ff" icon={<Users size={22} />} />
+            <Section title="Plus tard / Backlog" tasksArray={backlog} isOpen={openSections.backlog} toggleKey="backlog" color="#8e8e93" icon={<Archive size={22} />} />
+            <Section title="Terminées" tasksArray={doneTasks} isOpen={openSections.done} toggleKey="done" color="#30d158" icon={<CheckCircle2 size={22} />} />
           </section>
 
           {/* AJOUT MANUEL */}
@@ -664,7 +669,7 @@ export default function Home() {
                 className="btn btn-secondary"
                 style={{ padding: "0.5rem 1rem", fontSize: "0.9rem", textDecoration: "none", display: 'flex', alignItems: 'center', gap: '0.5rem' }}
               >
-                📅 Ouvrir Google Calendar
+                <CalendarDays size={18} /> Ouvrir Google Calendar
               </a>
             </div>
             
