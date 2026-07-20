@@ -200,7 +200,7 @@ export default function Home() {
     }
   };
 
-  const startRecording = async (taskIdToComment?: string) => {
+  const startRecording = async () => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       const recorder = new MediaRecorder(stream);
@@ -212,11 +212,7 @@ export default function Home() {
 
       recorder.onstop = async () => {
         const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
-        if (taskIdToComment) {
-          await handleCommentUpload(audioBlob, taskIdToComment);
-        } else {
-          await handleAudioUpload(audioBlob);
-        }
+        await handleAudioUpload(audioBlob);
         stream.getTracks().forEach(track => track.stop());
       };
 
@@ -236,14 +232,14 @@ export default function Home() {
     }
   };
 
-  const handlePointerDown = async (e: React.PointerEvent | React.TouchEvent | React.MouseEvent, taskIdToComment?: string) => {
+  const handlePointerDown = async (e: React.PointerEvent | React.TouchEvent | React.MouseEvent) => {
     // Si on est déjà en train de traiter ou enregistrer, on ne fait rien de plus
     if (isProcessing || isRecording) return;
     
     initAudioContext(); // Déverrouillage indispensable pour iOS Safari
     playBeep(); // Feedback sonore immédiat
     
-    if (!hasWelcomed && !taskIdToComment) {
+    if (!hasWelcomed) {
       hasWelcomed = true;
       setIsProcessing(true);
       setProcessingStep("Accueil vocal...");
@@ -251,7 +247,7 @@ export default function Home() {
       setIsProcessing(false);
       setProcessingStep("");
     }
-    startRecording(taskIdToComment);
+    startRecording();
   };
 
   const handlePointerUp = (e: React.PointerEvent | React.TouchEvent | React.MouseEvent) => {
@@ -301,37 +297,7 @@ export default function Home() {
     });
   };
 
-  const handleCommentUpload = async (audioBlob: Blob, taskId: string) => {
-    setIsProcessing(true);
-    setProcessingStep("Transcription du commentaire...");
-    try {
-      const formData = new FormData();
-      formData.append("file", audioBlob, "audio.webm");
-      const transcribeRes = await fetch("/api/transcribe", { method: "POST", body: formData });
-      const transcribeData = await transcribeRes.json();
-      
-      if (!transcribeData.text) throw new Error("Erreur de transcription");
 
-      const { updateTaskDetails } = await import("@/lib/tasks");
-      const existingTask = tasks.find(t => t.id === taskId);
-      const newComment = existingTask?.comment 
-        ? existingTask.comment + "\n\n" + transcribeData.text 
-        : transcribeData.text;
-      
-      await updateTaskDetails(taskId, { comment: newComment });
-      setTasks(tasks.map(t => t.id === taskId ? { ...t, comment: newComment } : t));
-      
-      if (isVoiceEnabled) {
-          playAudioResponse("Commentaire ajouté à la tâche.");
-      }
-    } catch(e) {
-        console.error(e);
-        alert("Erreur lors de l'ajout du commentaire.");
-    } finally {
-        setIsProcessing(false);
-        setProcessingStep("");
-    }
-  };
 
   const handleAudioUpload = async (audioBlob: Blob) => {
     setIsProcessing(true);
@@ -541,12 +507,9 @@ export default function Home() {
             </div>
             <div style={{ display: 'flex', gap: '0.2rem' }}>
               <button 
-                onPointerDown={(e) => handlePointerDown(e, task.id)}
-                onPointerUp={handlePointerUp}
-                onPointerLeave={handlePointerUp}
-                onContextMenu={(e) => e.preventDefault()}
-                title="Maintenir pour dicter un commentaire"
-                style={{ background: 'none', border: 'none', color: isRecording ? '#ff3b30' : 'var(--text-secondary)', cursor: 'pointer', padding: '0.5rem', animation: isRecording ? 'pulse 1.5s infinite' : 'none', userSelect: 'none', WebkitUserSelect: 'none' as any }}>
+                onClick={() => startEditing(task)}
+                title="Ajouter/Modifier un commentaire"
+                style={{ background: 'none', border: 'none', color: 'var(--text-secondary)', cursor: 'pointer', padding: '0.5rem' }}>
                 <MessageSquare size={20} />
               </button>
               <button onClick={() => startEditing(task)} style={{ background: 'none', border: 'none', color: 'var(--text-secondary)', cursor: 'pointer', padding: '0.5rem' }}>
