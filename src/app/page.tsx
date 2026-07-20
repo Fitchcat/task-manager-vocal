@@ -374,11 +374,11 @@ export default function Home() {
           />
           <div style={{ display: "flex", gap: "1rem", fontSize: "0.9rem", color: "var(--text-muted)", justifyContent: "space-between" }}>
             <div style={{ display: "flex", gap: "1rem" }}>
-              <label style={{ display: "flex", alignItems: "center", gap: "0.5rem", cursor: "pointer" }}>
-                <input type="checkbox" checked={editUrgent} onChange={e => setEditUrgent(e.target.checked)} /> Urgent
+              <label style={{ display: "flex", alignItems: "center", gap: "0.5rem", cursor: "pointer", fontSize: "1rem" }}>
+                <input type="checkbox" checked={editUrgent} onChange={e => setEditUrgent(e.target.checked)} style={{ width: '24px', height: '24px' }} /> Urgent
               </label>
-              <label style={{ display: "flex", alignItems: "center", gap: "0.5rem", cursor: "pointer" }}>
-                <input type="checkbox" checked={editImportant} onChange={e => setEditImportant(e.target.checked)} /> Important
+              <label style={{ display: "flex", alignItems: "center", gap: "0.5rem", cursor: "pointer", fontSize: "1rem" }}>
+                <input type="checkbox" checked={editImportant} onChange={e => setEditImportant(e.target.checked)} style={{ width: '24px', height: '24px' }} /> Important
               </label>
             </div>
             <div style={{ display: "flex", gap: "0.5rem" }}>
@@ -393,14 +393,14 @@ export default function Home() {
             type="checkbox" 
             checked={task.status === 'done'} 
             onChange={() => toggleTaskStatus(task)}
-            style={{ width: '20px', height: '20px', accentColor: 'var(--primary-color)', cursor: 'pointer', flexShrink: 0 }}
+            style={{ width: '28px', height: '28px', accentColor: 'var(--primary-color)', cursor: 'pointer', flexShrink: 0 }}
           />
           <div style={{ flex: 1, textDecoration: task.status === 'done' ? 'line-through' : 'none', color: task.status === 'done' ? 'var(--text-secondary)' : 'var(--text-primary)' }}>
-            <div style={{ fontSize: '1rem', fontWeight: 500 }}>{task.title}</div>
-            {task.dueDate && <div style={{ fontSize: '0.8rem', color: 'var(--primary-color)', marginTop: '0.2rem' }}>🗓 {task.dueDate}</div>}
+            <div style={{ fontSize: '1.1rem', fontWeight: 500 }}>{task.title}</div>
+            {task.dueDate && <div style={{ fontSize: '0.9rem', color: 'var(--primary-color)', marginTop: '0.2rem' }}>🗓 {task.dueDate}</div>}
           </div>
-          <button onClick={() => startEditing(task)} style={{ background: 'none', border: 'none', color: 'var(--text-secondary)', cursor: 'pointer', fontSize: '1rem' }}>✏️</button>
-          <button onClick={() => {if(task.id) deleteTask(task.id).then(()=>loadTasks(user?.uid || ''))}} style={{ background: 'none', border: 'none', color: '#ff3b30', cursor: 'pointer', fontSize: '1.2rem', marginLeft: '0.5rem' }}>✕</button>
+          <button onClick={() => startEditing(task)} style={{ background: 'none', border: 'none', color: 'var(--text-secondary)', cursor: 'pointer', fontSize: '1.2rem', padding: '0.5rem' }}>✏️</button>
+          <button onClick={() => {if(task.id) deleteTask(task.id).then(()=>loadTasks(user?.uid || ''))}} style={{ background: 'none', border: 'none', color: '#ff3b30', cursor: 'pointer', fontSize: '1.5rem', padding: '0.5rem', marginLeft: '0.2rem' }}>✕</button>
         </div>
       )}
     </div>
@@ -412,9 +412,9 @@ export default function Home() {
         onClick={() => toggleSection(toggleKey)}
         style={{ width: '100%', display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '1rem', background: 'none', border: 'none', color: 'white', cursor: 'pointer', textAlign: 'left' }}
       >
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontWeight: 600 }}>
-          <span style={{ color }}>{icon}</span>
-          {title} <span style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', fontWeight: 'normal' }}>({tasksArray.length})</span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontWeight: 600, fontSize: '1.1rem' }}>
+          <span style={{ color, fontSize: '1.3rem' }}>{icon}</span>
+          {title} <span style={{ color: 'var(--text-secondary)', fontSize: '1rem', fontWeight: 'normal' }}>({tasksArray.length})</span>
         </div>
         <span style={{ transform: isOpen ? 'rotate(180deg)' : 'none', transition: '0.3s' }}>▼</span>
       </button>
@@ -475,7 +475,7 @@ export default function Home() {
 
           {/* MATRICE D'EISENHOWER */}
           <section style={{ marginBottom: "2rem" }}>
-            <h2 style={{ fontSize: "1.2rem", marginBottom: "1rem" }}>Mes Tâches</h2>
+            <h2 style={{ fontSize: "1.4rem", marginBottom: "1rem" }}>Mes Tâches</h2>
             <Section title="À faire aujourd'hui" tasksArray={urgentImportant} isOpen={openSections.urgentImportant} toggleKey="urgentImportant" color="#ff3b30" icon="🔴" />
             <Section title="À planifier" tasksArray={importantNotUrgent} isOpen={openSections.important} toggleKey="important" color="#ffd60a" icon="🟡" />
             <Section title="À déléguer / Gérer" tasksArray={urgentNotImportant} isOpen={openSections.urgent} toggleKey="urgent" color="#0a84ff" icon="🔵" />
@@ -496,12 +496,12 @@ export default function Home() {
                 />
                 <button type="submit" className="btn btn-primary" style={{ width: "45px", padding: 0 }}>+</button>
               </div>
-              <div style={{ display: "flex", gap: "1rem", fontSize: "0.9rem", color: "var(--text-muted)" }}>
+              <div style={{ display: "flex", gap: "1.5rem", fontSize: "1rem", color: "var(--text-secondary)", marginTop: "0.5rem" }}>
                 <label style={{ display: "flex", alignItems: "center", gap: "0.5rem", cursor: "pointer" }}>
-                  <input type="checkbox" checked={newTaskUrgent} onChange={e => setNewTaskUrgent(e.target.checked)} /> Urgent
+                  <input type="checkbox" checked={newTaskUrgent} onChange={e => setNewTaskUrgent(e.target.checked)} style={{ width: '24px', height: '24px' }} /> Urgent
                 </label>
                 <label style={{ display: "flex", alignItems: "center", gap: "0.5rem", cursor: "pointer" }}>
-                  <input type="checkbox" checked={newTaskImportant} onChange={e => setNewTaskImportant(e.target.checked)} /> Important
+                  <input type="checkbox" checked={newTaskImportant} onChange={e => setNewTaskImportant(e.target.checked)} style={{ width: '24px', height: '24px' }} /> Important
                 </label>
               </div>
             </form>
@@ -509,7 +509,7 @@ export default function Home() {
 
           {/* SECTION CALENDRIER (toujours présente pour l'info) */}
           <section style={{ background: "var(--surface-color)", padding: "1.5rem", borderRadius: "20px", marginBottom: "2rem" }}>
-            <h2 style={{ fontSize: "1.2rem", marginBottom: "1rem" }}>Agenda d'aujourd'hui</h2>
+            <h2 style={{ fontSize: "1.4rem", marginBottom: "1rem" }}>Agenda d'aujourd'hui</h2>
             {loadingEvents ? (
               <p className="text-muted" style={{ textAlign: "center" }}>Chargement de l'agenda...</p>
             ) : events.length > 0 ? (
@@ -522,7 +522,7 @@ export default function Home() {
                         {event.start?.dateTime ? formatTime(event.start.dateTime) : "Journée"}
                       </div>
                     </div>
-                    <button onClick={() => handleDeleteEvent(event.id)} style={{ background: 'none', border: 'none', color: '#ff3b30', cursor: 'pointer', fontSize: '1.2rem', marginLeft: '0.5rem', padding: '0.5rem' }}>✕</button>
+                    <button onClick={() => handleDeleteEvent(event.id)} style={{ background: 'none', border: 'none', color: '#ff3b30', cursor: 'pointer', fontSize: '1.5rem', marginLeft: '0.5rem', padding: '0.5rem' }}>✕</button>
                   </li>
                 ))}
               </ul>
