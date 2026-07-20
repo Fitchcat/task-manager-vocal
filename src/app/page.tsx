@@ -548,9 +548,24 @@ export default function Home() {
 
             <button 
               onClick={() => setIsVoiceEnabled(!isVoiceEnabled)}
-              className="flex items-center gap-2 px-4 py-2 mt-2 rounded-full bg-gray-800/50 text-sm text-gray-400 hover:text-white hover:bg-gray-700/50 transition-all border border-gray-700/50"
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.8rem',
+                padding: '0.8rem 1.5rem',
+                marginTop: '1rem',
+                borderRadius: '30px',
+                fontSize: '1.2rem',
+                fontWeight: 'bold',
+                backgroundColor: isVoiceEnabled ? '#34c759' : '#ff3b30',
+                color: '#fff',
+                border: 'none',
+                boxShadow: '0 4px 10px rgba(0,0,0,0.3)',
+                cursor: 'pointer',
+                transition: 'all 0.3s ease'
+              }}
             >
-              {isVoiceEnabled ? '🔊 Réponse vocale : ON' : '🔇 Réponse vocale : OFF'}
+              {isVoiceEnabled ? '🔊 Synthèse Vocale : ON' : '🔇 Synthèse Vocale : OFF'}
             </button>
 
             <div style={{ height: "1.5rem", color: "var(--text-muted)", fontSize: "0.9rem" }}>
