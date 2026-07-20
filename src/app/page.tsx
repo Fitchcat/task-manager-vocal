@@ -9,6 +9,7 @@ import { getUserTasks, addTask, updateTaskStatus, deleteTask, Task } from "@/lib
 
 let globalAudioCtx: any = null;
 let hasWelcomed = false;
+let hasUnlockedAudio = false;
 
 const initAudioContext = () => {
   if (typeof window !== 'undefined') {
@@ -30,7 +31,15 @@ const initAudioContext = () => {
     // Déverrouillage de la balise HTMLAudioElement globale
     const audioEl = document.getElementById('voice-player') as HTMLAudioElement;
     if (audioEl) {
-       audioEl.play().catch(()=>{});
+       // Si on presse le micro, on coupe la parole de l'IA immédiatement
+       if (!audioEl.paused) {
+           audioEl.pause();
+           audioEl.currentTime = 0;
+       }
+       if (!hasUnlockedAudio) {
+           audioEl.play().catch(()=>{});
+           hasUnlockedAudio = true;
+       }
     }
   }
 };
@@ -204,20 +213,26 @@ export default function Home() {
     }
   };
 
-  const toggleRecording = async (taskIdToComment?: string) => {
+  const handlePointerDown = async (e: React.PointerEvent | React.TouchEvent | React.MouseEvent, taskIdToComment?: string) => {
+    // Si on est déjà en train de traiter ou enregistrer, on ne fait rien de plus
+    if (isProcessing || isRecording) return;
+    
     initAudioContext(); // Déverrouillage indispensable pour iOS Safari
+    
+    if (!hasWelcomed && !taskIdToComment) {
+      hasWelcomed = true;
+      setIsProcessing(true);
+      setProcessingStep("Accueil vocal...");
+      await playAudioResponse("Bonjour Pascal, comment puis-je t'aider ?");
+      setIsProcessing(false);
+      setProcessingStep("");
+    }
+    startRecording(taskIdToComment);
+  };
+
+  const handlePointerUp = (e: React.PointerEvent | React.TouchEvent | React.MouseEvent) => {
     if (isRecording) {
       stopRecording();
-    } else {
-      if (!hasWelcomed && !taskIdToComment) {
-        hasWelcomed = true;
-        setIsProcessing(true);
-        setProcessingStep("Accueil vocal...");
-        await playAudioResponse("Bonjour Pascal, comment puis-je t'aider ?");
-        setIsProcessing(false);
-        setProcessingStep("");
-      }
-      startRecording(taskIdToComment);
     }
   };
 
@@ -491,9 +506,12 @@ export default function Home() {
             </div>
             <div style={{ display: 'flex', gap: '0.2rem' }}>
               <button 
-                onClick={() => isRecording ? stopRecording() : toggleRecording(task.id)} 
-                title="Dicter un commentaire"
-                style={{ background: 'none', border: 'none', color: isRecording ? '#ff3b30' : 'var(--text-secondary)', cursor: 'pointer', fontSize: '1.3rem', padding: '0.5rem', animation: isRecording ? 'pulse 1.5s infinite' : 'none' }}>
+                onPointerDown={(e) => handlePointerDown(e, task.id)}
+                onPointerUp={handlePointerUp}
+                onPointerLeave={handlePointerUp}
+                onContextMenu={(e) => e.preventDefault()}
+                title="Maintenir pour dicter un commentaire"
+                style={{ background: 'none', border: 'none', color: isRecording ? '#ff3b30' : 'var(--text-secondary)', cursor: 'pointer', fontSize: '1.3rem', padding: '0.5rem', animation: isRecording ? 'pulse 1.5s infinite' : 'none', userSelect: 'none', WebkitUserSelect: 'none' as any }}>
                 💬
               </button>
               <button onClick={() => startEditing(task)} style={{ background: 'none', border: 'none', color: 'var(--text-secondary)', cursor: 'pointer', fontSize: '1.3rem', padding: '0.5rem' }}>✏️</button>
@@ -554,13 +572,20 @@ export default function Home() {
             <button 
               className={`mic-button ${isRecording ? "recording" : ""}`} 
               aria-label="Dictate task"
-              onClick={() => toggleRecording()}
+              onPointerDown={(e) => handlePointerDown(e)}
+              onPointerUp={handlePointerUp}
+              onPointerLeave={handlePointerUp}
+              onContextMenu={(e) => e.preventDefault()}
               disabled={isProcessing}
-              style={isRecording ? {
-                animation: "pulse 1.5s infinite",
-                backgroundColor: "#ff3b30",
-                boxShadow: "0 0 20px rgba(255, 59, 48, 0.5)"
-              } : {}}
+              style={{
+                userSelect: 'none',
+                WebkitUserSelect: 'none' as any,
+                ...(isRecording ? {
+                  animation: "pulse 1.5s infinite",
+                  backgroundColor: "#ff3b30",
+                  boxShadow: "0 0 20px rgba(255, 59, 48, 0.5)"
+                } : {})
+              }}
             >
               {isProcessing ? "⏳" : <div className="text-4xl">🎤</div>}
             </button>
@@ -588,7 +613,8 @@ export default function Home() {
             </button>
 
             <div style={{ height: "1.5rem", color: "var(--text-muted)", fontSize: "0.9rem" }}>
-              {isRecording && "Écoute en cours... Cliquez pour arrêter."}
+              {!isRecording && !isProcessing && "Maintenez appuyé pour parler..."}
+              {isRecording && "Relâchez le micro pour envoyer"}
               {isProcessing && processingStep}
             </div>
           </section>
