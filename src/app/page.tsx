@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { loginWithGoogle, logout } from "@/lib/auth";
 import { auth } from "@/lib/firebase";
 import { onAuthStateChanged, User } from "firebase/auth";
@@ -409,29 +409,31 @@ export default function Home() {
 
   // États pour l'édition d'une tâche
   const [editingTaskId, setEditingTaskId] = useState<string | null>(null);
-  const [editTitle, setEditTitle] = useState("");
+  const editTitleRef = useRef("");
+  const editCommentRef = useRef("");
   const [editUrgent, setEditUrgent] = useState(false);
   const [editImportant, setEditImportant] = useState(false);
-  const [editComment, setEditComment] = useState("");
 
   const startEditing = (task: Task) => {
-    setEditingTaskId(task.id || null);
-    setEditTitle(task.title);
+    editTitleRef.current = task.title;
+    editCommentRef.current = task.comment || "";
     setEditUrgent(task.isUrgent || false);
     setEditImportant(task.isImportant || false);
-    setEditComment(task.comment || "");
+    setEditingTaskId(task.id || null);
   };
 
   const saveEditing = async (taskId: string) => {
     try {
       const { updateTaskDetails } = await import("@/lib/tasks");
+      const title = editTitleRef.current;
+      const comment = editCommentRef.current;
       await updateTaskDetails(taskId, {
-        title: editTitle,
+        title,
         isUrgent: editUrgent,
         isImportant: editImportant,
-        comment: editComment
+        comment
       });
-      setTasks(tasks.map(t => t.id === taskId ? { ...t, title: editTitle, isUrgent: editUrgent, isImportant: editImportant, comment: editComment } : t));
+      setTasks(tasks.map(t => t.id === taskId ? { ...t, title, isUrgent: editUrgent, isImportant: editImportant, comment } : t));
       setEditingTaskId(null);
     } catch (error) {
       console.error(error);
@@ -446,14 +448,14 @@ export default function Home() {
         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.8rem' }}>
           <input 
             type="text" 
-            value={editTitle} 
-            onChange={(e) => setEditTitle(e.target.value)} 
+            defaultValue={editTitleRef.current} 
+            onChange={(e) => { editTitleRef.current = e.target.value; }} 
             className="input-field" 
           />
           <textarea 
             autoFocus
-            value={editComment} 
-            onChange={(e) => setEditComment(e.target.value)} 
+            defaultValue={editCommentRef.current} 
+            onChange={(e) => { editCommentRef.current = e.target.value; }} 
             className="input-field" 
             placeholder="Commentaire (laisser vide pour supprimer)..."
             style={{ minHeight: '80px', resize: 'vertical', fontFamily: 'inherit' }}
