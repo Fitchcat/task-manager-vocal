@@ -485,6 +485,7 @@ export default function Home() {
             className="input-field" 
           />
           <textarea 
+            autoFocus
             value={editComment} 
             onChange={(e) => setEditComment(e.target.value)} 
             className="input-field" 
@@ -557,7 +558,10 @@ export default function Home() {
             </div>
           </div>
           {task.comment && (
-            <div style={{ marginTop: '0.5rem', marginLeft: '3.2rem', padding: '0.8rem', backgroundColor: 'rgba(255,255,255,0.05)', borderRadius: '8px', fontSize: '0.95rem', color: 'var(--text-secondary)', fontStyle: 'italic', whiteSpace: 'pre-wrap' }}>
+            <div 
+              onClick={() => startEditing(task)}
+              style={{ cursor: 'text', marginTop: '0.5rem', marginLeft: '3.2rem', padding: '0.8rem', backgroundColor: 'rgba(255,255,255,0.05)', borderRadius: '8px', fontSize: '0.95rem', color: 'var(--text-secondary)', fontStyle: 'italic', whiteSpace: 'pre-wrap' }}
+            >
               {task.comment}
             </div>
           )}
