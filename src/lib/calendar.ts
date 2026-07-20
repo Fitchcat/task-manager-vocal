@@ -76,3 +76,24 @@ export const addEventToCalendar = async (summary: string, startTime: string, end
   }
   return await response.json();
 };
+
+export const deleteEventFromCalendar = async (eventId: string) => {
+  const token = localStorage.getItem('google_calendar_token');
+  if (!token) throw new Error("Aucun token Google Calendar");
+
+  const response = await fetch(`https://www.googleapis.com/calendar/v3/calendars/primary/events/${eventId}`, {
+    method: 'DELETE',
+    headers: {
+      'Authorization': `Bearer ${token}`
+    }
+  });
+
+  if (!response.ok) {
+    let err;
+    try {
+      err = await response.json();
+    } catch(e) {}
+    throw new Error(`Erreur Calendar Delete: ${err?.error?.message || response.statusText}`);
+  }
+  return true;
+};

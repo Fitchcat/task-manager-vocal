@@ -65,6 +65,18 @@ export default function Home() {
     }
   };
 
+  const handleDeleteEvent = async (eventId: string) => {
+    if (!confirm("Voulez-vous vraiment supprimer cet événement de votre agenda Google ?")) return;
+    try {
+      const { deleteEventFromCalendar } = await import("@/lib/calendar");
+      await deleteEventFromCalendar(eventId);
+      fetchEvents(); // Recharger les événements
+    } catch (error) {
+      console.error(error);
+      alert("Erreur lors de la suppression de l'événement.");
+    }
+  };
+
   const loadTasks = async (uid: string) => {
     setLoadingTasks(true);
     try {
@@ -487,11 +499,14 @@ export default function Home() {
             ) : events.length > 0 ? (
               <ul style={{ listStyle: "none", padding: 0, margin: 0 }}>
                 {events.map((event) => (
-                  <li key={event.id} style={{ display: "flex", justifyContent: "space-between", padding: "0.8rem 0", borderBottom: "1px solid rgba(255,255,255,0.1)" }}>
-                    <span style={{ fontWeight: 500 }}>{event.summary}</span>
-                    <span style={{ color: "var(--primary-color)", fontSize: "0.9rem" }}>
-                      {event.start?.dateTime ? formatTime(event.start.dateTime) : "Journée"}
-                    </span>
+                  <li key={event.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "0.8rem 0", borderBottom: "1px solid rgba(255,255,255,0.1)" }}>
+                    <div style={{ flex: 1 }}>
+                      <div style={{ fontWeight: 500 }}>{event.summary}</div>
+                      <div style={{ color: "var(--primary-color)", fontSize: "0.9rem", marginTop: "0.2rem" }}>
+                        {event.start?.dateTime ? formatTime(event.start.dateTime) : "Journée"}
+                      </div>
+                    </div>
+                    <button onClick={() => handleDeleteEvent(event.id)} style={{ background: 'none', border: 'none', color: '#ff3b30', cursor: 'pointer', fontSize: '1.2rem', marginLeft: '0.5rem', padding: '0.5rem' }}>✕</button>
                   </li>
                 ))}
               </ul>
